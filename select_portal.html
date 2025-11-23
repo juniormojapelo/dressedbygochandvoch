@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Your Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* General Setup */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f8f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Container Card - Minimalist White Box */
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 4px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        /* Headings - Light and Elegant */
+        h2 {
+            font-size: 1.8em;
+            font-weight: 300;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+            color: #333;
+        }
+
+        /* Portal Selection Page Styles */
+        .welcome-text {
+            font-size: 1.1em;
+            color: #444;
+            margin-bottom: 30px;
+            font-weight: 300;
+        }
+
+        /* General Portal Button Style */
+        .btn-portal {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: transform 0.2s, opacity 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-portal:hover {
+            opacity: 0.95;
+            transform: translateY(-2px);
+        }
+
+        .btn-portal i {
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+
+        /* Client Portal (Zara Style - Light/Tan) */
+        .client-portal {
+            background-color: #d1b490; /* Muted Tan/Gold */
+            color: #333;
+        }
+
+        /* Admin Dashboard (YSL Style - Dark/Black) */
+        .admin-portal {
+            background-color: #333;
+            color: white;
+        }
+
+        /* Footer Link - Subtle and Clean */
+        .footer-link {
+            margin-top: 25px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        .footer-link a {
+            color: #000;
+            text-decoration: none;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+
+        .footer-link a:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+        
+        /* Styles needed for Login/Signup (included for consistency) */
+        .input-group input {
+            width: 100%;
+            padding: 14px 15px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 15px;
+            background-color: #000000;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .btn-signup {
+            width: 100%;
+            padding: 15px;
+            background-color: #b7926b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Select Your Portal</h2>
+        <div class="welcome-text" id="welcomeMessage">
+            Welcome! Please select the portal.
+        </div>
+        
+        <a href="client_index.html" class="btn-portal client-portal">
+            <i class="fas fa-user-tie"></i> CLIENT PORTAL 
+        </a>
+
+        <a href="admin_index.html" class="btn-portal admin-portal">
+            <i class="fas fa-cog"></i> ADMIN DASHBOARD 
+        </a>
+
+        <div class="footer-link" style="margin-top: 30px;">
+            <a href="login.html">Log out / Switch account</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const username = localStorage.getItem('user_username');
+            const welcomeElement = document.getElementById('welcomeMessage');
+
+            if (username && welcomeElement) {
+                // Capitalize the first letter of the username for a nicer look
+                const capitalizedUsername = username.charAt(0).toUpperCase() + username.slice(1);
+                
+                // Update the welcome message
+                welcomeElement.innerHTML = `Welcome <strong>${capitalizedUsername}</strong>! Please select the portal.`;
+            } else if (welcomeElement) {
+                // If username isn't found (e.g., accessed directly), use a generic message
+                 welcomeElement.innerHTML = 'Welcome! Please select the portal.';
+            }
+        });
+    </script>
+</body>
+</html>
