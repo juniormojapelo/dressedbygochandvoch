@@ -1,47 +1,147 @@
 <?php
-// 1. Database Connection Details
-$servername = "localhost";
-$username = "root"; // Default XAMPP username
-$password = ""; // Default XAMPP password (no password)
-$dbname = "user_db";
 
-// 2. Create connection
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Set headers to allow cross-origin requests (necessary for local testing)
 
-// Check connection
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+header("Access-Control-Allow-Origin: *");
+
+header("Content-Type: application/json; charset=UTF-8");
+
+header("Access-Control-Allow-Methods: POST");
+
+header("Access-Control-Max-Age: 3600");
+
+header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+
+
+
+// --- 1. Database Configuration (XAMPP Default) ---
+
+$host = "localhost";
+
+$db_name = "dressedbygochandvoch"; // Your specified database name
+
+$username = "root";               // Default XAMPP MySQL user
+
+$password = "";                   // Default XAMPP MySQL password (empty)
+
+
+
+$conn = null;
+
+
+
+try {
+
+    // Attempt to connect to the database
+
+    $conn = new PDO("mysql:host={$host};dbname={$db_name}", $username, $password);
+
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+} catch (PDOException $exception) {
+
+    http_response_code(500);
+
+    echo json_encode(["message" => "Database connection error: " . $exception->getMessage()]);
+
+    exit();
+
 }
 
-// 3. Check if the form was submitted via POST
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    
-    // Get and Sanitize form data
-    $full_name = $conn->real_escape_string($_POST['full_name']);
-    $email = $conn->real_escape_string($_POST['email']);
-    // IMPORTANT: Hash the password before saving it
-    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-    // 4. Create the SQL query to insert data
-    $sql = "INSERT INTO users (full_name, email, password) 
-            VALUES ('$full_name', '$email', '$password')";
 
-    // 5. Execute the query
-    if ($conn->query($sql) === TRUE) {
-        // Registration successful
-        echo "<h2>✅ Account Created Successfully!</h2>";
-        echo "<p>Your details have been saved to the database.</p>";
-        // Redirect the user after successful registration
-        echo '<script>window.location.href = "select_portal.html";</script>';
-    } else {
-        // Registration failed (e.g., email already exists)
-        echo "<h2>❌ Error:</h2>" . $sql . "<br>" . $conn->error;
-    }
+// --- 2. Get Data from Client ---
+
+$data = json_decode(file_get_contents("php://input"));
+
+
+
+// Check if data is valid and required fields are present
+
+if (empty($data->fullName) || empty($data->email) || empty($data->password)) {
+
+    http_response_code(400);
+
+    echo json_encode(["message" => "Missing required fields (Full Name, Email, or Password)."]);
+
+    exit();
+
+}
+
+
+
+$fullName = htmlspecialchars(strip_tags($data->fullName));
+
+$email = htmlspecialchars(strip_tags($data->email));
+
+$plainPassword = $data->password;
+
+
+
+// --- 3. Check for Existing Email ---
+
+$query = "SELECT user_id FROM users WHERE email = ? LIMIT 1";
+
+$stmt = $conn->prepare($query);
+
+$stmt->bindParam(1, $email);
+
+$stmt->execute();
+
+
+
+if ($stmt->rowCount() > 0) {
+
+    http_response_code(409); // Conflict
+
+    echo json_encode(["message" => "Registration failed. This email is already registered."]);
+
+    exit();
+
+}
+
+
+
+// --- 4. Securely Hash the Password ---
+
+// Use PASSWORD_DEFAULT for best practices (currently bcrypt)
+
+$passwordHash = password_hash($plainPassword, PASSWORD_DEFAULT);
+
+
+
+// --- 5. Insert New User Record ---
+
+$query = "INSERT INTO users (full_name, email, password_hash) VALUES (:full_name, :email, :password_hash)";
+
+
+
+$stmt = $conn->prepare($query);
+
+
+
+// Bind the values
+
+$stmt->bindParam(':full_name', $fullName);
+
+$stmt->bindParam(':email', $email);
+
+$stmt->bindParam(':password_hash', $passwordHash);
+
+
+
+if ($stmt->execute()) {
+
+    http_response_code(201); // Created
+
+    echo json_encode(["message" => "User successfully created."]);
+
 } else {
-    // If someone tries to access register.php directly
-    echo "Access Denied.";
+
+    http_response_code(500);
+
+    echo json_encode(["message" => "Failed to create user."]);
+
 }
 
-// 6. Close the connection
-$conn->close();
 ?>
